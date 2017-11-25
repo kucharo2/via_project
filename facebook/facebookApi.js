@@ -3,7 +3,7 @@ window.fbAsyncInit = function() {
         appId      : '557123124627479',
         cookie     : true,
         xfbml      : true,
-        version    : 'v2.5'
+        version    : 'v2.11'
     });
 
     FB.AppEvents.logPageView();
@@ -30,7 +30,7 @@ function statusChangeCallback(response) {
         console.log("loggeed in");
     } else if (response.status === 'not_authorized') {
         console.log("not authorized");
-//                logout();
+               logout();
     } else {
         console.log("something just fucked up");
 //                logout();
@@ -61,7 +61,7 @@ function logIntoApplication() {
 }
 
 function getFbFriends() {
-    FB.api('me/friends', { fields: 'id, first_name,picture', limit: 6 },function(response) {
+    FB.api('me/friendlists', { fields: 'id, first_name, picture'},function(response) {
         console.log(response);
     });
 }
