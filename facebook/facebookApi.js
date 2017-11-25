@@ -61,7 +61,7 @@ function logIntoApplication() {
 }
 
 function getFbFriends() {
-    FB.api('me/friendlists', { fields: 'id, first_name, picture'},function(response) {
+    FB.api('me/friends', { fields: 'id, first_name, profile_pic'},function(response) {
         console.log(response);
     });
 }
