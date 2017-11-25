@@ -52,9 +52,19 @@
                 statusChangeCallback(response);
             });
         }
+
+        function fblogin() {
+            FB.login(function (response) {
+                if (response.authResponse) {
+                    checkLoginState();
+                } else {
+                    console.log('User cancelled login or did not fully authorize.');
+                }
+            }, { scope: ['email', 'user_friends'] });
+        }
 	</script>
 
-	<button onclick="checkLoginState();">Log into facebook</button>
+	<button onclick="fblogin();">Log into facebook</button>
 
 		Hello world!
 	</body>
