@@ -26,7 +26,7 @@ function statusChangeCallback(response) {
     // Full docs on the response object can be found in the documentation
     // for FB.getLoginStatus().
     if (response.status === 'connected') {
-//                loginUserIntoApplication();
+               logIntoApplication();
         console.log("loggeed in");
     } else if (response.status === 'not_authorized') {
         console.log("not authorized");
