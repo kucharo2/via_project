@@ -57,6 +57,11 @@ function logIntoApplication() {
     console.log('Welcome!  Fetching your information.... ');
     FB.api('/me',{ fields: 'id, name, email' }, function(response) {
         console.log('Successful login for: ' + response.name + " "+response.email+" "+response.id);
+    });
+}
 
+function getFbFriends() {
+    FB.api('me/friends', { fields: 'id, first_name,picture', limit: 6 },function(response) {
+        console.log(response);
     });
 }
