@@ -95,3 +95,51 @@ function getFbFriends() {
         console.log(response);
     });
 }
+
+
+
+
+function createCORSRequest(method, url) {
+    var xhr = new XMLHttpRequest();
+    if ("withCredentials" in xhr) {
+        // XHR for Chrome/Firefox/Opera/Safari.
+        xhr.open(method, url, true);
+    } else if (typeof XDomainRequest != "undefined") {
+        // XDomainRequest for IE.
+        xhr = new XDomainRequest();
+        xhr.open(method, url);
+    } else {
+        // CORS not supported.
+        xhr = null;
+        console.log("CORS are not supported by this browser");
+    }
+    return xhr;
+}
+
+function makeCorsRequest(method, url, data, callback) {
+    var xhr = createCORSRequest(method, url);
+    if (!xhr) {
+        alert('CORS not supported');
+        return null;
+    }
+
+    xhr.onload = function() {
+        callback(xhr.responseText);
+    };
+
+    xhr.onerror = function() {
+        alert('Woops, there was an error making the request.');
+        return null;
+    };
+
+    if(data && method == "POST"){
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        xhr.send(data)
+    }else{
+        xhr.send();
+    }
+}
+makeCorsRequest("GET", "https://salty-woodland-34826.herokuapp.com/", null, function(response) {
+    console.log(response);
+});
+
