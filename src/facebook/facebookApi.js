@@ -1,5 +1,4 @@
-// init fb api connection
-window.fbInit = function () {
+window.fbAsyncInit = function () {
     FB.init({
         appId: '557123124627479',
         cookie: true,
@@ -29,8 +28,31 @@ window.fbInit = function () {
     fjs.parentNode.insertBefore(js, fjs);
 }(document, 'script', 'facebook-jssdk'));
 
+function statusChangeCallback(response) {
+    console.log('statusChangeCallback');
+    console.log(response);
+    // The response object is returned with a status field that lets the
+    // app know the current login status of the person.
+    // Full docs on the response object can be found in the documentation
+    // for FB.getLoginStatus().
+    if (response.status === 'connected') {
+        logIntoApplication();
+        console.log("loggeed in");
+    } else if (response.status === 'not_authorized') {
+        console.log("User is not authorized");
+        logout();
+    } else {
+        logout();
+    }
+}
 
-function fbLogin() {
+function checkLoginStatus() {
+    FB.getLoginStatus(function (response) {
+        statusChangeCallback(response);
+    });
+}
+
+function fblogin() {
     FB.login(function (response) {
         if (response.authResponse) {
             checkLoginStatus();
@@ -38,23 +60,6 @@ function fbLogin() {
             console.log('User cancelled login or did not fully authorize.');
         }
     }, {scope: ['email', 'user_friends']});
-}
-
-function checkLoginStatus() {
-    FB.getLoginStatus(function (response) {
-        console.log('login status check called.');
-        console.log(response);
-
-        if (response.status === 'connected') {
-            logIntoApplication();
-            console.log("loggeed in");
-        } else if (response.status === 'not_authorized') {
-            console.log("User is not authorized");
-            logout();
-        } else {
-            logout();
-        }
-    });
 }
 
 function logIntoApplication() {
