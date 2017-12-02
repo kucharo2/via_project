@@ -1,3 +1,5 @@
+const localTesting = false;
+
 window.fbAsyncInit = function () {
     FB.init({
         appId: '557123124627479',
@@ -47,6 +49,15 @@ function checkLoginStatus() {
 }
 
 function fbLogin() {
+    if(localTesting) {
+        var response = {
+            "email": "kucharrom@gmail.com",
+            "id": "10215232831076561",
+            "name": "Roman Kuchy Kuchar"
+        };
+        loginFronted(response);
+        return;
+    }
     FB.login(function (response) {
         if (response.authResponse) {
             checkLoginStatus();
@@ -59,12 +70,16 @@ function fbLogin() {
 function logIntoApplication() {
     console.log('Welcome!  Fetching your information.... ');
     FB.api('/me', {fields: 'id, name, email'}, function (response) {
-        console.log('Successful login for: ' + response.name + " " + response.email + " " + response.id);
-        var $loggedUser = $("#loggedUser");
-        $loggedUser.innerHTML = response.name + ", " + response.email;
-        $("#fbLogin").hide();
-        $loggedUser.show();
+        loginFronted(response);
     });
+}
+
+function loginFronted(response) {
+    console.log('Successful login for: ' + response.name + " " + response.email + " " + response.id);
+    var $loggedUser = $("#loggedUser");
+    $loggedUser.text(response.name + ", " + response.email);
+    $("#fbLogin").hide();
+    $loggedUser.show();
 }
 
 function logout() {
@@ -72,7 +87,7 @@ function logout() {
     var $loggedUser = $("#loggedUser");
     $loggedUser.hide();
     $("#fbLogin").show();
-    $loggedUser.innerHTML("");
+    $loggedUser.text("");
 }
 
 function getFbFriends() {
