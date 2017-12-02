@@ -70,6 +70,9 @@ function fbLogin() {
 function logIntoApplication() {
     console.log('Welcome!  Fetching your information.... ');
     FB.api('/me', {fields: 'id, name, email'}, function (response) {
+        makeCorsRequest("GET", "https://salty-woodland-34826.herokuapp.com/user" + response.id, null, function(data) {
+            console.log(data);
+        });
         loginFronted(response);
     });
 }
@@ -127,13 +130,14 @@ function makeCorsRequest(method, url, data, callback) {
         callback(xhr.responseText);
     };
 
-    xhr.onerror = function() {
+    xhr.onerror = function(data) {
+        console.log(data);
         alert('Woops, there was an error making the request.');
         return null;
     };
 
-    if(data && method == "POST"){
-        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    if(data && method == "PUT"){
+        xhr.setRequestHeader("Content-Type", "application/json");
         xhr.send(data)
     }else{
         xhr.send();
