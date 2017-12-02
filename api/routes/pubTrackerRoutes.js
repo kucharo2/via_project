@@ -3,7 +3,7 @@ module.exports = function (app) {
     var userController = require('../controllers/userController');
 
     // prepare headers for cross side requests.
-    router.use(function(req, res, next) {
+    app.use(function(req, res, next) {
         console.log('Something is happening.');
         res.header("Access-Control-Allow-Origin", "*");
         res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
