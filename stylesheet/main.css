@@ -9,12 +9,6 @@
     text-align: center;
 }
 
-.modal-body .row {
-    margin-bottom: 5px;
-    border-bottom: 1px solid #e9ecef;
-    padding-bottom: 5px;
-}
-
 img.indicator {
     width: 55px;
     height: 55px;
@@ -32,11 +26,16 @@ div.stars {
     display: inline-block;
 }
 
+div.stars.form-group {
+    margin-bottom: 0;
+}
+
 input.star { display: none; }
 
 label.star {
     float: right;
-    padding: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
     font-size: 36px;
     color: #444;
     transition: all .2s;

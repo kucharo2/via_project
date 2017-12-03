@@ -8,25 +8,43 @@ function createPlacesTable() {
     searchNearbyPlaces(function (nearbyPlaces) {
         if (nearbyPlaces.length > 0) {
             nearbyPlaces.sort(distanceComparator);
-            var tableHtml = '<div class="container">';
-            for (var i = 0; i < nearbyPlaces.length; ++i) {
+            var tableHtml = '<table class="table">' +
+                '    <tbody>';
+            for (var i = 0; i < nearbyPlaces.length; i++) {
                 var place = nearbyPlaces[i];
-                tableHtml += '<div class="row" data-toggle="collapse" data-target="#restaurantCollapse' + i + '">' +
-                    '<div class="col-sm"><img src="' + place.photos[0].getUrl({'maxWidth': 150, 'maxHeight': 100}) + '" alt="' + place.name + '"/></div>' +
-                    '<div class="col-sm"><div>' + place.name + '</div><div>' + place.vicinity + '</div></div>' +
-                    '</div>';
-                tableHtml += '<div class="collapse row" id="restaurantCollapse' + i + '">' + getReviewStarsHtml() +
-                    '</div>';
+
+                tableHtml+= '<tr onclick="showAddPlaceFom(' + i + ')">';
+                tableHtml+= '<td><img src="' + place.photos[0].getUrl({'maxWidth': 150, 'maxHeight': 150}) + '" alt="' + place.name + '"/></td>';
+                tableHtml+= '<td><div>' + place.name + '</div><div>' + place.vicinity + '</div></td>';
+                tableHtml+= '</tr>';
+                tableHtml+= createAddPlaceForm(i, place)
             }
-            tableHtml += '</div>';
+            tableHtml += '</tbody>' +
+                '</table>';
 
             $addPlaceModalContent.html(tableHtml);
+
+            $addPlaceModalContent.find("form").on("submit", submitAddPlaceForm)
         } else {
             $addPlaceModalContent.text("Cannot found any place near to you.");
         }
         $("#modalAjaxIndicator").hide();
 
     })
+}
+
+function submitAddPlaceForm(e) {
+    var $this = $(this);
+    var formData = {
+        "placeId" : $this.find("input[name='placeId']").val(),
+        "comment" : $this.find("textarea[name='comment']").val(),
+        "stars" : $this.find("input[name='star']:checked:first").val()
+    };
+    // makeCorsRequest("POST", "https://salty-woodland-34826.herokuapp.com/user/" + storage.getItem(LOGGED_USER_ID) + "/addPlace", formData, function(user) {
+    //    console.log(user);
+    // });
+    $('#addPlaceModal').modal('hide');
+    e.preventDefault();
 }
 
 function distanceComparator(place1, place2) {
@@ -94,19 +112,37 @@ function makeCorsRequest(method, url, data, callback) {
     }
 }
 
+function showAddPlaceFom(index) {
+    var $addPlaceModalContent = $("#addPlaceModalContent");
+    $addPlaceModalContent.find("tr[id^='addPlaceForm']").hide();
+    $addPlaceModalContent.find("#addPlaceForm" + index).show();
+}
+
+function createAddPlaceForm(i, place) {
+    return '<tr style="display:none" id="addPlaceForm' + i + '"><td colspan="2">' +
+        '<form>' +
+            '<input type="hidden" name="placeId" value="' + place.id + '"/>' +
+                getReviewStarsHtml() +
+                '<div class="form-group">' +
+                    '<label>Comment</label>' +
+                    '<textarea class="form-control" name="comment" rows="2"></textarea>' +
+                '</div>' +
+            '<button type="submit" class="btn btn-primary">Submit</button>' +
+        '</form>' +
+        '</td></tr>';
+}
+
 function getReviewStarsHtml() {
-    return '<div class="stars">' +
-    '    <form action="">' +
-    '        <input class="star star-5" id="star-5" type="radio" name="star"/>' +
+    return '<div class="stars form-group">' +
+    '        <input class="star star-5" id="star-5" type="radio" name="star" value="5"/>' +
     '        <label class="star star-5" for="star-5"></label>' +
-    '        <input class="star star-4" id="star-4" type="radio" name="star"/>' +
+    '        <input class="star star-4" id="star-4" type="radio" name="star" value="4"/>' +
     '        <label class="star star-4" for="star-4"></label>' +
-    '        <input class="star star-3" id="star-3" type="radio" name="star"/>' +
+    '        <input class="star star-3" id="star-3" type="radio" name="star" value="3"/>' +
     '        <label class="star star-3" for="star-3"></label>' +
-    '        <input class="star star-2" id="star-2" type="radio" name="star"/>' +
+    '        <input class="star star-2" id="star-2" type="radio" name="star" value="2"/>' +
     '        <label class="star star-2" for="star-2"></label>' +
-    '        <input class="star star-1" id="star-1" type="radio" name="star"/>' +
+    '        <input class="star star-1" id="star-1" type="radio" name="star"  value="1"/>' +
     '        <label class="star star-1" for="star-1"></label>' +
-    '    </form>' +
     '</div>';
 }
