@@ -8,18 +8,18 @@ function createPlacesTable() {
     searchNearbyPlaces(function (nearbyPlaces) {
         if (nearbyPlaces.length > 0) {
             nearbyPlaces.sort(distanceComparator);
-            var tableHtml = '<table class="table">' +
-                '    <tbody>';
-            for (var i = 0; i < nearbyPlaces.length; i++) {
+            var tableHtml = '<div class="container">';
+            for (var i = 0; i < nearbyPlaces.length; ++i) {
                 var place = nearbyPlaces[i];
-
-                tableHtml+= '<tr>';
-                tableHtml+= '<td><img src="' + place.photos[0].getUrl({'maxWidth': 150, 'maxHeight': 150}) + '" alt="' + place.name + '"/></td>';
-                tableHtml+= '<td><div>' + place.name + '</div><div>' + place.vicinity + '</div></td>';
-                tableHtml+= '</tr>';
+                tableHtml += '<div class="row" data-toggle="collapse" data-target="#restaurantCollapse' + i + '">' +
+                    '<div class="col-sm"><img src="' + place.photos[0].getUrl({'maxWidth': 150, 'maxHeight': 100}) + '" alt="' + place.name + '"/></div>' +
+                    '<div class="col-sm"><div>' + place.name + '</div><div>' + place.vicinity + '</div></div>' +
+                    '</div>';
+                tableHtml += '<div class="collapse row" id="restaurantCollapse' + i + '">' + getReviewStarsHtml() +
+                    '</div>';
             }
-            tableHtml += '</tbody>' +
-                '</table>';
+            tableHtml += '</div>';
+
             $addPlaceModalContent.html(tableHtml);
         } else {
             $addPlaceModalContent.text("Cannot found any place near to you.");
@@ -94,3 +94,19 @@ function makeCorsRequest(method, url, data, callback) {
     }
 }
 
+function getReviewStarsHtml() {
+    return '<div class="stars">' +
+    '    <form action="">' +
+    '        <input class="star star-5" id="star-5" type="radio" name="star"/>' +
+    '        <label class="star star-5" for="star-5"></label>' +
+    '        <input class="star star-4" id="star-4" type="radio" name="star"/>' +
+    '        <label class="star star-4" for="star-4"></label>' +
+    '        <input class="star star-3" id="star-3" type="radio" name="star"/>' +
+    '        <label class="star star-3" for="star-3"></label>' +
+    '        <input class="star star-2" id="star-2" type="radio" name="star"/>' +
+    '        <label class="star star-2" for="star-2"></label>' +
+    '        <input class="star star-1" id="star-1" type="radio" name="star"/>' +
+    '        <label class="star star-1" for="star-1"></label>' +
+    '    </form>' +
+    '</div>';
+}
