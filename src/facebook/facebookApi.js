@@ -72,7 +72,7 @@ function logIntoApplication() {
     FB.api('/me', {fields: 'id, name, email'}, function (response) {
         makeCorsRequest("GET", "https://salty-woodland-34826.herokuapp.com/user/" + response.id, null, function(user) {
             console.log(user);
-            if(typeof user.name === "undefined") {
+            if(user.length < 1) {
                 // user not existing, create a new one
                 makeCorsRequest("POST", "https://salty-woodland-34826.herokuapp.com/user", {
                     "email": response.email,
@@ -138,7 +138,8 @@ function makeCorsRequest(method, url, data, callback) {
     }
 
     xhr.onload = function() {
-        callback(xhr.responseText);
+        var parsedData = JSON.parse(xhr.responseText)
+        callback(parsedData);
     };
 
     xhr.onerror = function(data) {
@@ -154,7 +155,3 @@ function makeCorsRequest(method, url, data, callback) {
         xhr.send();
     }
 }
-makeCorsRequest("GET", "https://salty-woodland-34826.herokuapp.com/", null, function(response) {
-    console.log(response);
-});
-
