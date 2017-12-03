@@ -19,7 +19,7 @@ module.exports = function (app) {
      * @PUT create new user
      */
     app.route("/user")
-        .put(userController.createUser);
+        .post(userController.createUser);
 
     app.route("")
         .get(function(req, res) {
