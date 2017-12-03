@@ -12,7 +12,6 @@ function createPlacesTable() {
                 '    <tbody>';
             for (var i = 0; i < nearbyPlaces.length; i++) {
                 var place = nearbyPlaces[i];
-                console.log(place);
 
                 tableHtml+= '<tr>';
                 tableHtml+= '<td><img src="' + place.photos[0].getUrl({'maxWidth': 150, 'maxHeight': 150}) + '" alt="' + place.name + '"/></td>';
