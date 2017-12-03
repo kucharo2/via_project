@@ -1,9 +1,10 @@
 var map;
 var infoWindow;
+var googleLocation;
 
-function showCurrentLocation(location) {
+function showCurrentLocation() {
     new google.maps.Marker({
-        position: location,
+        position: googleLocation,
         map: map,
         icon: {
             path: google.maps.SymbolPath.CIRCLE,
@@ -15,33 +16,42 @@ function showCurrentLocation(location) {
         }
     });
 }
+
 function initMap() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function (position) {
+            googleLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: googleLocation,
+                zoom: 15
+            });
 
-    navigator.geolocation.getCurrentPosition(function(position) {
-        console.log(position);
-        var location = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-        map = new google.maps.Map(document.getElementById('map'), {
-            center: location,
-            zoom: 15
+            infoWindow = new google.maps.InfoWindow();
+            showCurrentLocation();
+
+            searchNearbyPlaces(function (nearbyPlaces) {
+                for (var i = 0; i < nearbyPlaces.length; i++) {
+                    createMarker(nearbyPlaces[i]);
+                }
+            });
+
         });
-
-        showCurrentLocation(location);
-
-        var service = new google.maps.places.PlacesService(map);
-        service.nearbySearch({
-            location: location,
-            radius: 500,
-            types: ['cafe', 'restaurant', 'bar']
-        }, callback);
-    });
+    } else {
+        $("#map").text("Your browser does not support geolocation.")
+    }
 }
 
-function callback(results, status) {
-    if (status === google.maps.places.PlacesServiceStatus.OK) {
-        for (var i = 0; i < results.length; i++) {
-            createMarker(results[i]);
+function searchNearbyPlaces(callback) {
+    var service = new google.maps.places.PlacesService(map);
+    service.nearbySearch({
+        location: googleLocation,
+        radius: 250,
+        types: ['cafe', 'restaurant', 'bar']
+    }, function (result, status) {
+        if (status === google.maps.places.PlacesServiceStatus.OK) {
+            callback(result);
         }
-    }
+    });
 }
 
 function createMarker(place) {

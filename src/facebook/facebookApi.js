@@ -1,4 +1,4 @@
-const localTesting = false;
+const mockEnabled = false;
 
 window.fbAsyncInit = function () {
     FB.init({
@@ -16,13 +16,17 @@ window.fbAsyncInit = function () {
         checkLoginStatus();
     });
 
-    if(localTesting) {
+    if(mockEnabled) {
         mockFacebookAPI();
     }
 
     prepareStorage();
-    if(storage.getItem(LOGGED_USER_ID) !== null) {
+
+    var loggedUserId = storage.getItem(LOGGED_USER_ID);
+    if(loggedUserId !== null && loggedUserId !== "") {
         checkLoginStatus();
+    } else {
+        logout();
     }
 };
 
@@ -89,16 +93,21 @@ function loginFronted(response) {
     storage.setItem(LOGGED_USER_ID, response.id);
     var $loggedUser = $("#loggedUser");
     $loggedUser.text(response.name + ", " + response.email);
-    $("#fbLogin").hide();
     $loggedUser.show();
+
+    $("#fbLogin").hide();
+    $("#logout").show();
 }
 
 function logout() {
     console.log("User was logged out.");
     var $loggedUser = $("#loggedUser");
     $loggedUser.hide();
-    $("#fbLogin").show();
     $loggedUser.text("");
+
+    storage.setItem(LOGGED_USER_ID, "");
+    $("#fbLogin").show();
+    $("#logout").hide();
 }
 
 function getFbFriends() {
