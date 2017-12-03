@@ -70,7 +70,7 @@ function fbLogin() {
 function logIntoApplication() {
     console.log('Welcome!  Fetching your information.... ');
     FB.api('/me', {fields: 'id, name, email'}, function (response) {
-        makeCorsRequest("GET", "https://salty-woodland-34826.herokuapp.com/user" + response.id, null, function(user) {
+        makeCorsRequest("GET", "https://salty-woodland-34826.herokuapp.com/user/" + response.id, null, function(user) {
             console.log(user);
             if(typeof user.name === "undefined") {
                 // user not existing, create a new one
