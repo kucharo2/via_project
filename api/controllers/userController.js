@@ -19,3 +19,16 @@ exports.createUser = function(req, res) {
         res.json(user);
     })
 };
+
+exports.addVisitedPlace = function(req, res) {
+    User.findByIdAndUpdate(
+        req.params.fbId,
+        {$push: {"visitedPlaces": req.body}},
+        {safe: true, upsert: true},
+        function(err, user) {
+            if (err)
+                res.send(err);
+            res.json(user);
+        }
+    );
+};

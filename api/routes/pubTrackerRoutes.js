@@ -15,11 +15,11 @@ module.exports = function (app) {
     app.route("/user/:fbId")
         .get(userController.getUserByFbId);
 
-    /**
-     * @PUT create new user
-     */
     app.route("/user")
         .post(userController.createUser);
+
+    app.route("/user/:fbId/addPlace")
+        .post(userController.addVisitedPlace);
 
     app.route("")
         .get(function(req, res) {
