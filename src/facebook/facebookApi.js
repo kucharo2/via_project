@@ -138,8 +138,7 @@ function makeCorsRequest(method, url, data, callback) {
     }
 
     xhr.onload = function() {
-        var parsedData = JSON.parse(xhr.responseText)
-        callback(parsedData);
+        callback(xhr.response);
     };
 
     xhr.onerror = function(data) {
@@ -148,6 +147,7 @@ function makeCorsRequest(method, url, data, callback) {
         return null;
     };
 
+    xhr.responseType = "json";
     if(data && method == "POST"){
         xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
         xhr.send(JSON.stringify(data));
