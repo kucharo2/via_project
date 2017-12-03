@@ -149,7 +149,7 @@ function makeCorsRequest(method, url, data, callback) {
 
     if(data && method == "POST"){
         xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
-        xhr.send(data)
+        xhr.send(JSON.stringify(data));
     }else{
         xhr.send();
     }
