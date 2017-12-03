@@ -7,8 +7,8 @@ module.exports = function (app) {
         console.log('Something is happening.');
         res.header("Access-Control-Allow-Origin", "*");
         res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-        res.header("Access-Control-Allow-Headers", "*");
-        res.header("Content-Type", "application/json");
+        res.header("Access-Control-Allow-Headers", "X-Requested-With, Content-Type, X-Codingpedia");
+        res.header("Content-Type", "application/json; charset=UTF-8");
         next();
     });
 
