@@ -147,7 +147,6 @@ function makeCorsRequest(method, url, data, callback) {
         return null;
     };
 
-    xhr.setRequestHeader("Origin", "https://kucharo2.github.io/via_project/");
     if(data && method == "POST"){
         xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
         xhr.send(data)
