@@ -148,7 +148,11 @@ function makeCorsRequest(method, url, data, callback) {
     };
 
     if(data && method == "POST"){
-        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+        xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
+        xhr.setRequestHeader("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS");
+        xhr.setRequestHeader("Access-Control-Allow-Headers", "Content-Type");
+        xhr.setRequestHeader("Access-Control-Request-Headers", "X-Requested-With, accept, content-type");
         xhr.send(data)
     }else{
         xhr.send();
