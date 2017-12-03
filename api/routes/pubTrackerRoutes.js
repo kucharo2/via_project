@@ -5,7 +5,7 @@ module.exports = function (app) {
     // prepare headers for cross side requests.
     app.use(function(req, res, next) {
         console.log('Something is happening.');
-        res.header("Access-Control-Allow-Origin", "https://kucharo2.github.io/via_project/");
+        res.header("Access-Control-Allow-Origin", "https://kucharo2.github.io");
         res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
         res.header("Access-Control-Allow-Headers", "X-Requested-With, Content-Type, X-Codingpedia");
         res.header("Content-Type", "application/json; charset=UTF-8");
