@@ -1,5 +1,3 @@
-const apiKey = 'AIzaSyD10rgOEQhCGE26z1MxQ5A6IQKuH51JOnY';
-
 var map;
 var infoWindow;
 
