@@ -15,7 +15,11 @@ function createPlacesTable() {
                 var place = nearbyPlaces[i];
 
                 tableHtml+= '<tr onclick="showAddPlaceFom(' + i + ')">';
-                tableHtml+= '<td><img src="' + place.photos[0].getUrl({'maxWidth': 150, 'maxHeight': 150}) + '" alt="' + place.name + '"/></td>';
+                if (typeof place.photos === "undefined") {
+                    tableHtml+= '<td><img src="' + place.icon + '" alt="' + place.name + '"/></td>';
+                } else {
+                    tableHtml+= '<td><img src="' + place.photos[0].getUrl({'maxWidth': 150, 'maxHeight': 150}) + '" alt="' + place.name + '"/></td>';
+                }
                 tableHtml+= '<td><div>' + place.name + '</div><div>' + place.vicinity + '</div></td>';
                 tableHtml+= '</tr>';
                 tableHtml+= createAddPlaceForm(i, place)
@@ -75,7 +79,7 @@ function createCORSRequest(method, url) {
     if ("withCredentials" in xhr) {
         // XHR for Chrome/Firefox/Opera/Safari.
         xhr.open(method, url, true);
-    } else if (typeof XDomainRequest != "undefined") {
+    } else if (typeof XDomainRequest !== "undefined") {
         // XDomainRequest for IE.
         xhr = new XDomainRequest();
         xhr.open(method, url);
@@ -106,7 +110,7 @@ function makeCorsRequest(method, route, data, callback) {
     };
 
     xhr.responseType = "json";
-    if (data && method == "POST") {
+    if (data && method === "POST") {
         xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
         xhr.send(JSON.stringify(data));
     } else {
@@ -124,27 +128,27 @@ function createAddPlaceForm(i, place) {
     return '<tr style="display:none" id="addPlaceForm' + i + '"><td colspan="2">' +
         '<form>' +
             '<input type="hidden" name="placeId" value="' + place.id + '"/>' +
-                getReviewStarsHtml() +
+                getReviewStarsHtml(i) +
                 '<div class="form-group">' +
                     '<label>Comment</label>' +
                     '<textarea class="form-control" name="comment" rows="2"></textarea>' +
                 '</div>' +
-            '<button type="submit" class="btn btn-primary">Submit</button>' +
+            '<button class="btn btn-primary">Submit</button>' +
         '</form>' +
         '</td></tr>';
 }
 
-function getReviewStarsHtml() {
+function getReviewStarsHtml(index) {
     return '<div class="stars form-group">' +
-    '        <input class="star star-5" id="star-5" type="radio" name="star" value="5"/>' +
-    '        <label class="star star-5" for="star-5"></label>' +
-    '        <input class="star star-4" id="star-4" type="radio" name="star" value="4"/>' +
-    '        <label class="star star-4" for="star-4"></label>' +
-    '        <input class="star star-3" id="star-3" type="radio" name="star" value="3"/>' +
-    '        <label class="star star-3" for="star-3"></label>' +
-    '        <input class="star star-2" id="star-2" type="radio" name="star" value="2"/>' +
-    '        <label class="star star-2" for="star-2"></label>' +
-    '        <input class="star star-1" id="star-1" type="radio" name="star"  value="1"/>' +
-    '        <label class="star star-1" for="star-1"></label>' +
+    '        <input class="star star-5" id="star-' + index + '-5" type="radio" name="star" value="5"/>' +
+    '        <label class="star star-5" for="star-' + index + '-5"></label>' +
+    '        <input class="star star-4" id="star-' + index + '-4" type="radio" name="star" value="4"/>' +
+    '        <label class="star star-4" for="star-' + index + '-4"></label>' +
+    '        <input class="star star-3" id="star-' + index + '-3" type="radio" name="star" value="3"/>' +
+    '        <label class="star star-3" for="star-' + index + '-3"></label>' +
+    '        <input class="star star-2" id="star-' + index + '-2" type="radio" name="star" value="2"/>' +
+    '        <label class="star star-2" for="star-' + index + '-2"></label>' +
+    '        <input class="star star-1" id="star-' + index + '-1" type="radio" name="star"  value="1"/>' +
+    '        <label class="star star-1" for="star-' + index + '-1"></label>' +
     '</div>';
 }
