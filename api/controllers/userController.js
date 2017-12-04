@@ -22,7 +22,7 @@ exports.createUser = function(req, res) {
 
 exports.addVisitedPlace = function(req, res) {
     User.findByIdAndUpdate(
-        req.params.fbId,
+        {fbId : req.params.fbId},
         {$push: {"visitedPlaces": req.body}},
         {safe: true, upsert: true},
         function(err, user) {

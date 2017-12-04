@@ -1,5 +1,5 @@
 {
-  "name": "todolist",
+  "name": "pubTracker",
   "version": "1.0.0",
   "description": "Test rest api for todo list",
   "main": "index.js",
