@@ -72,10 +72,10 @@ function fbLogin() {
 function logIntoApplication() {
     console.log('Welcome!  Fetching your information.... ');
     FB.api('/me', {fields: 'id, name, email'}, function (response) {
-        makeCorsRequest("GET", "https://salty-woodland-34826.herokuapp.com/user/" + response.id, null, function(user) {
+        makeCorsRequest("GET", "/user/" + response.id, null, function(user) {
             if(user.length < 1) {
                 console.log("User not exists. Creating a new one ...");
-                makeCorsRequest("POST", "https://salty-woodland-34826.herokuapp.com/user", {
+                makeCorsRequest("POST", "/user", {
                     "email": response.email,
                     "fbId": response.id,
                     "name": response.name

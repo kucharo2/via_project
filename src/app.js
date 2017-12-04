@@ -1,4 +1,5 @@
 var storage = {};
+const PUB_TRACKER_API_URL = "https://salty-woodland-34826.herokuapp.com";
 const LOGGED_USER_ID = "loggedUserId";
 
 function createPlacesTable() {
@@ -40,9 +41,9 @@ function submitAddPlaceForm(e) {
         "comment" : $this.find("textarea[name='comment']").val(),
         "stars" : $this.find("input[name='star']:checked:first").val()
     };
-    // makeCorsRequest("POST", "https://salty-woodland-34826.herokuapp.com/user/" + storage.getItem(LOGGED_USER_ID) + "/addPlace", formData, function(user) {
-    //    console.log(user);
-    // });
+    makeCorsRequest("POST", "/user/" + storage.getItem(LOGGED_USER_ID) + "/addPlace", formData, function(user) {
+       console.log(user);
+    });
     $('#addPlaceModal').modal('hide');
     e.preventDefault();
 }
@@ -86,7 +87,8 @@ function createCORSRequest(method, url) {
     return xhr;
 }
 
-function makeCorsRequest(method, url, data, callback) {
+function makeCorsRequest(method, route, data, callback) {
+    var url = PUB_TRACKER_API_URL + route;
     var xhr = createCORSRequest(method, url);
     if (!xhr) {
         alert('CORS not supported');
