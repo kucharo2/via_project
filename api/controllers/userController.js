@@ -34,42 +34,42 @@ exports.addVisitedPlace = function (req, res) {
 };
 
 exports.getVisitedPlaceByFriends = function (req, res) {
-    User.mapReduce({
-        query: {fbId: {$in: [req.body]}},
-        map: function () {
-            // this should equals the actual selected user
-            var user = this;
-            user.visitedPlaces.forEach(function (place) {
-                emit(place.placeId, {
-                    userName: user.name,
-                    stars: place.stars,
-                    comment: place.comment})
-            });
-        },
-        reduce: function (placeId, values) {
-            var friends = {};
-            var rating = 0;
-            values.forEach(function (value) {
-                if (typeof friends[value.userName] === "undefined") {
-                    friends[value.userName] = [];
-                }
-                friends[value.userName].push({stars: value.stars, comment: value.comment});
-                rating += value.stars;
-            });
-            return {
-                placeId: placeId,
-                friends: friends,
-                rating: rating/values.length
+    var o = {};
+    o.map = function () {
+        // this should equals the actual selected user
+        var user = this;
+        user.visitedPlaces.forEach(function (place) {
+            console.log("mapping place");
+            emit(place.placeId, {
+                userName: user.name,
+                stars: place.stars,
+                comment: place.comment})
+        });
+    };
+    o.reduce = function (placeId, values) {
+        var friends = {};
+        var rating = 0;
+        console.log("reducing place");
+        values.forEach(function (value) {
+            if (typeof friends[value.userName] === "undefined") {
+                friends[value.userName] = [];
             }
+            friends[value.userName].push({stars: value.stars, comment: value.comment});
+            rating += value.stars;
+        });
+        return {
+            placeId: placeId,
+            friends: friends,
+            rating: rating/values.length
         }
-    }, function (err, results) {
+    };
+
+    o.out = { replace: 'createdCollectionNameForResults' }
+    o.verbose = true;
+    User.mapReduce(o, function (err, model, stats) {
+        console.log('map reduce took %d ms', stats.processtime);
         if (err)
             res.send(err);
-        res.json(results);
-    }).then(function (docs) {
-        console.log("first");
-        console.log(docs);
-    }).then(null, function(asd, sss) {
-        console.log(asd + " -> " + sss)
+        res.json(model);
     });
 };
