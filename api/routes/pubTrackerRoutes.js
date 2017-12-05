@@ -4,7 +4,6 @@ module.exports = function (app) {
 
     // prepare headers for cross side requests.
     app.use(function(req, res, next) {
-        console.log('Something is happening.');
         res.header("Access-Control-Allow-Origin", "*");
         res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
         res.header("Access-Control-Allow-Headers", "X-Requested-With, Content-Type, X-Codingpedia");

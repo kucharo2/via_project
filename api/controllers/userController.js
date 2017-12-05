@@ -34,39 +34,41 @@ exports.addVisitedPlace = function (req, res) {
 };
 
 exports.getVisitedPlaceByFriends = function (req, res) {
-    var o = {};
-    o.map = function () {
+    var configuration = {};
+    configuration.query = {fbId : {$in : req.body}};
+    configuration.map = function () {
         // this should equals the actual selected user
         var user = this;
         user.visitedPlaces.forEach(function (place) {
-            console.log("mapping place");
+            var friends = {};
+            friends[user.name] = [{stars: place.stars, comment: place.comment}];
             emit(place.placeId, {
-                userName: user.name,
-                stars: place.stars,
-                comment: place.comment})
+                friends: friends,
+                rating: place.stars
+            });
         });
     };
-    o.reduce = function (placeId, values) {
+    configuration.reduce = function (placeId, values) {
         var friends = {};
         var rating = 0;
-        console.log("reducing place");
         values.forEach(function (value) {
-            if (typeof friends[value.userName] === "undefined") {
-                friends[value.userName] = [];
+            var valueFriend = value.friends;
+            var userName = Object.keys(value.friends)[0];
+            if (typeof friends[userName] === "undefined") {
+                friends[userName] = [];
             }
-            friends[value.userName].push({stars: value.stars, comment: value.comment});
-            rating += value.stars;
+            friends[userName].push(valueFriend[userName]);
+            rating += parseInt(value.rating);
         });
         return {
-            placeId: placeId,
             friends: friends,
             rating: rating/values.length
+
         }
     };
+    // configuration.out = {inline: 1};
 
-    o.out = { replace: 'createdCollectionNameForResults' }
-    o.verbose = true;
-    User.mapReduce(o, function (err, model) {
+    User.mapReduce(configuration, function (err, model) {
         if (err)
             res.send(err);
         res.json(model);
