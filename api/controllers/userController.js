@@ -66,8 +66,7 @@ exports.getVisitedPlaceByFriends = function (req, res) {
 
     o.out = { replace: 'createdCollectionNameForResults' }
     o.verbose = true;
-    User.mapReduce(o, function (err, model, stats) {
-        console.log('map reduce took %d ms', stats.processtime);
+    User.mapReduce(o, function (err, model) {
         if (err)
             res.send(err);
         res.json(model);
