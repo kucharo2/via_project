@@ -66,5 +66,10 @@ exports.getVisitedPlaceByFriends = function (req, res) {
         if (err)
             res.send(err);
         res.json(results);
+    }).then(function (docs) {
+        console.log("first");
+        console.log(docs);
+    }).then(null, function(asd, sss) {
+        console.log(asd + " -> " + sss)
     });
 };
