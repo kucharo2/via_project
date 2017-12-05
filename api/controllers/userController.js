@@ -40,7 +40,7 @@ exports.getVisitedPlaceByFriends = function (req, res) {
             // this should equals the actual selected user
             var user = this;
             user.visitedPlaces.forEach(function (place) {
-                emit(palce.placeId, {
+                emit(place.placeId, {
                     userName: user.name,
                     stars: place.stars,
                     comment: place.comment})
@@ -66,7 +66,5 @@ exports.getVisitedPlaceByFriends = function (req, res) {
         if (err)
             res.send(err);
         res.json(results);
-    }).then(function (docs) {
-        console.log(docs);
     });
 };
