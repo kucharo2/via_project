@@ -21,6 +21,9 @@ module.exports = function (app) {
     app.route("/user/:fbId/addPlace")
         .post(userController.addVisitedPlace);
 
+    app.route("/friends/visited")
+        .post(userController.getVisitedPlaceByFriends);
+
     app.route("")
         .get(function(req, res) {
             var data = "<h1>Pub tracker API</h1></br><p>Find more information at <a href='https://github.com/kucharo2/via_project'>project repository</a>.</p>";
