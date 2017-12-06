@@ -66,7 +66,6 @@ exports.getVisitedPlaceByFriends = function (req, res) {
 
         }
     };
-    // configuration.out = {inline: 1};
 
     User.mapReduce(configuration, function (err, model) {
         if (err)
