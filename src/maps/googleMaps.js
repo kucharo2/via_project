@@ -63,19 +63,15 @@ function placeDetail(placeId, callback) {
         return;
     }
     service.getDetails({
-        placeId: 'ChIJN1t_tDeuEmsRUsoyG83frY4'
+        placeId: placeId
     }, function(place, status) {
-        console.log(place);
-        console.log(status);
-
         if (status === google.maps.places.PlacesServiceStatus.OK) {
             callback(place);
         }
     });
 }
 
-function createMarker(place) {
-    console.log("Creating marker for " + place.name);
+function createMarker(place, contentCreator) {
     var placeLoc = place.geometry.location;
     var marker = new google.maps.Marker({
         map: map,
@@ -84,7 +80,7 @@ function createMarker(place) {
     });
 
     google.maps.event.addListener(marker, 'click', function () {
-        infoWindow.setContent(place.name);
+        infoWindow.setContent(contentCreator());
         infoWindow.open(map, this);
     });
 }

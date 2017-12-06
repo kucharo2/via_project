@@ -9,7 +9,7 @@ function createPlacesTable() {
     searchNearbyPlaces(function (nearbyPlaces) {
         if (nearbyPlaces.length > 0) {
             nearbyPlaces.sort(distanceComparator);
-            var tableHtml = createPlaceTableHtml(nearbyPlaces);
+            var tableHtml = createAddPlaceTableHtml(nearbyPlaces);
 
             $addPlaceModalContent.html(tableHtml);
 
@@ -24,13 +24,17 @@ function createPlacesTable() {
 
 function submitAddPlaceForm(e) {
     var $this = $(this);
+    var rating = $this.find("input[name='star']:checked:first").val();
+    if (typeof rating === "undefined") {
+        rating = 0;
+    }
     var formData = {
         "placeId": $this.find("input[name='placeId']").val(),
         "comment": $this.find("textarea[name='comment']").val(),
-        "stars": $this.find("input[name='star']:checked:first").val()
+        "stars": rating
     };
-    makeCorsRequest("POST", "/user/" + storage.getItem(LOGGED_USER_ID) + "/addPlace", formData, function(user) {
-       console.log(user);
+    makeCorsRequest("POST", "/user/" + storage.getItem(LOGGED_USER_ID) + "/addPlace", formData, function (user) {
+        console.log(user);
     });
     $('#addPlaceModal').modal('hide');
     e.preventDefault();
@@ -108,6 +112,27 @@ function showAddPlaceForm(index) {
     $addPlaceModalContent.find("#addPlaceForm" + index).show();
 }
 
+function showVisitedPlacesByFriends() {
+    getFbFriends(function (response) {
+        if (response.data.length > 0) {
+            var friendFbIds = [];
+            response.data.forEach(function (friend) {
+                friendFbIds.push(friend.id);
+            });
+            makeCorsRequest("POST", "/friends/visited", friendFbIds, function (result) {
+                result.forEach(function (place) {
+                    // place is one result of mapReduce, so it holds all friends that was in this place and their comments
+                    placeDetail(place._id, function (placeDetail) {
+                        createMarker(placeDetail, function () {
+                            return createPlaceDetailInfoWindowContent(placeDetail, place.value);
+                        });
+                    });
+                })
+            });
+        }
+    });
+}
+
 function logIntoApplication(response) {
     makeCorsRequest("GET", "/user/" + response.id, null, function (user) {
         if (user.length < 1) {
@@ -122,22 +147,7 @@ function logIntoApplication(response) {
         }
     });
 
-    getFbFriends(function(response) {
-        if (response.data.length > 0) {
-            var friendFbIds = [];
-            response.data.forEach(function(friend) {
-                friendFbIds.push(friend.id);
-            });
-            makeCorsRequest("POST", "/friends/visited", friendFbIds, function(result) {
-                console.log(result);
-                result.forEach(function (place) {
-                    placeDetail(place._id, function(placeDetail) {
-                       createMarker(placeDetail);
-                    });
-                })
-            });
-        }
-    });
+    showVisitedPlacesByFriends();
     setLoggedUser(response);
 }
 
@@ -169,21 +179,14 @@ function setLoggedUser(response) {
     }
 }
 
-function createPlaceTableHtml(nearbyPlaces) {
+function createAddPlaceTableHtml(nearbyPlaces) {
     var tableHtml = '<table class="table">' +
         '    <tbody>';
     for (var i = 0; i < nearbyPlaces.length; i++) {
         var place = nearbyPlaces[i];
 
         tableHtml += '<tr onclick="showAddPlaceForm(' + i + ')">';
-        if (typeof place.photos === "undefined") {
-            tableHtml += '<td><img src="' + place.icon + '" alt="' + place.name + '"/></td>';
-        } else {
-            tableHtml += '<td><img src="' + place.photos[0].getUrl({
-                    'maxWidth': 150,
-                    'maxHeight': 150
-                }) + '" alt="' + place.name + '"/></td>';
-        }
+        tableHtml += '<td>' + getPlacePhoto(place) + '</td>';
         tableHtml += '<td><div>' + place.name + '</div><div>' + place.vicinity + '</div></td>';
         tableHtml += '</tr>';
         tableHtml += createAddPlaceForm(i, place)
@@ -220,4 +223,61 @@ function getReviewStarsHtml(index) {
         '        <input class="star star-1" id="star-' + index + '-1" type="radio" name="star"  value="1"/>' +
         '        <label class="star star-1" for="star-' + index + '-1"></label>' +
         '</div>';
+}
+
+function getPlacePhoto(placeDetail) {
+    if (typeof placeDetail.photos === "undefined") {
+        return '<img src="' + placeDetail.icon + '" alt="' + placeDetail.name + '"/>';
+    } else {
+        return '<img src="' + placeDetail.photos[0].getUrl({
+                'maxWidth': 150,
+                'maxHeight': 150
+            }) + '" alt="' + placeDetail.name + '" alt="' + placeDetail.name + '"/>';
+    }
+}
+
+function createPlaceDetailInfoWindowContent(placeDetail, placeReview) {
+    console.log(placeReview);
+    var friendsIds = Object.keys(placeReview.friends);
+    var visitorsText = "";
+    for (var i = 0; i < 3; ++i) {
+        if (friendsIds.length > i) {
+            visitorsText += placeReview.friends[friendsIds[i]].name;
+            if (i < 2) {
+                visitorsText += " ";
+            }
+            visitorsText += " ";
+        }
+    }
+    if (friendsIds.length > 3) {
+        visitorsText += "and " + friendsIds.length - 3 + " more ";
+    }
+    visitorsText += "was here.";
+    return '<h5>' + placeDetail.name + '</h5>' +
+        '<div class="infoWindowContent">' +
+        '   <div>' + getPlacePhoto(placeDetail) + '</div>' +
+        '   <div>' +
+                renderRating(placeReview.rating) + '</br>' +
+        '       ' + placeDetail.adr_address + '</br></br>' +
+                    visitorsText + '</br></br>' +
+        '           last text' +
+        '       ' +
+        '   </div>' +
+        '</div>';
+}
+
+function renderRating(rating) {
+    var fullStarsNumber = parseInt(rating);
+    var halfStar = Math.round(rating) !== fullStarsNumber;
+    var html = '';
+    for (var i = 0; i < 5; i++) {
+        if (i < fullStarsNumber) {
+            html += '<span class="star star-full"></span>';
+        } else if (i == fullStarsNumber && halfStar) {
+            html += '<span class="star star-half"></span>';
+        } else {
+            html += '<span class="star star-empty"></span>';
+        }
+    }
+    return html;
 }
