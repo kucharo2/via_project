@@ -41,7 +41,7 @@ exports.getVisitedPlaceByFriends = function (req, res) {
         var user = this;
         user.visitedPlaces.forEach(function (place) {
             var friends = {};
-            friends[user.name] = [{stars: place.stars, comment: place.comment}];
+            friends[user.fbId] = {name: user.name, reviews: [{stars: place.stars, comment: place.comment}]};
             emit(place.placeId, {
                 friends: friends,
                 rating: place.stars
@@ -53,11 +53,11 @@ exports.getVisitedPlaceByFriends = function (req, res) {
         var rating = 0;
         values.forEach(function (value) {
             var valueFriend = value.friends;
-            var userName = Object.keys(value.friends)[0];
-            if (typeof friends[userName] === "undefined") {
-                friends[userName] = [];
+            var userFbId = Object.keys(value.friends)[0];
+            if (typeof friends[userFbId] === "undefined") {
+                friends[userFbId] = {name: valueFriend[userFbId].name, reviews: []};
             }
-            friends[userName].push(valueFriend[userName]);
+            friends[userFbId].reviews.push(valueFriend[userFbId].reviews[0]);
             rating += parseInt(value.rating);
         });
         return {
