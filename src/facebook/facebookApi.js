@@ -1,4 +1,4 @@
-const mockEnabled = true;
+const mockEnabled = false;
 
 window.fbAsyncInit = function () {
     FB.init({
