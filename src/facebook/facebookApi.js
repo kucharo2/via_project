@@ -42,20 +42,19 @@ window.fbAsyncInit = function () {
     fjs.parentNode.insertBefore(js, fjs);
 }(document, 'script', 'facebook-jssdk'));
 
-function statusChangeCallback(response) {
-    if (response.status === 'connected') {
-        logIntoApplication();
-    } else if (response.status === 'not_authorized') {
-        console.log("User is not authorized");
-        logout();
-    } else {
-        logout();
-    }
-}
-
 function checkLoginStatus() {
     FB.getLoginStatus(function (response) {
-        statusChangeCallback(response);
+        if (response.status === 'connected') {
+            console.log('Welcome!  Fetching your information.... ');
+            FB.api('/me', {fields: 'id, name, email'}, function (userData) {
+                logIntoApplication(userData);
+            });
+        } else if (response.status === 'not_authorized') {
+            console.log("User is not authorized");
+            logout();
+        } else {
+            logout();
+        }
     });
 }
 
@@ -69,49 +68,8 @@ function fbLogin() {
     }, {scope: ['email', 'user_friends']});
 }
 
-function logIntoApplication() {
-    console.log('Welcome!  Fetching your information.... ');
-    FB.api('/me', {fields: 'id, name, email'}, function (response) {
-        makeCorsRequest("GET", "/user/" + response.id, null, function(user) {
-            if(user.length < 1) {
-                console.log("User not exists. Creating a new one ...");
-                makeCorsRequest("POST", "/user", {
-                    "email": response.email,
-                    "fbId": response.id,
-                    "name": response.name
-                }, function(createdUser) {
-                    user = createdUser;
-                });
-            }
-        });
-        loginFronted(response);
-    });
-}
-
-function loginFronted(response) {
-    console.log('Successful login for: ' + response.name + " " + response.email + " " + response.id);
-    storage.setItem(LOGGED_USER_ID, response.id);
-    var $loggedUser = $("#loggedUser");
-    $loggedUser.text(response.name + ", " + response.email);
-    $loggedUser.show();
-
-    $("#fbLogin").hide();
-    $("#logout").show();
-}
-
-function logout() {
-    console.log("User was logged out.");
-    var $loggedUser = $("#loggedUser");
-    $loggedUser.hide();
-    $loggedUser.text("");
-
-    storage.setItem(LOGGED_USER_ID, "");
-    $("#fbLogin").show();
-    $("#logout").hide();
-}
-
-function getFbFriends() {
-    FB.api('me/friends', {fields: 'id, first_name, picture'}, function (response) {
-        console.log(response);
+function getFbFriends(callback) {
+    FB.api('/me/friends', {fields: 'id, picture'}, function (response) {
+        callback(response);
     });
 }

@@ -1,4 +1,5 @@
 var map;
+var service;
 var infoWindow;
 var googleLocation;
 
@@ -27,13 +28,14 @@ function initMap() {
             });
 
             infoWindow = new google.maps.InfoWindow();
+            service = new google.maps.places.PlacesService(map);
             showCurrentLocation();
-
-            searchNearbyPlaces(function (nearbyPlaces) {
-                for (var i = 0; i < nearbyPlaces.length; i++) {
-                    createMarker(nearbyPlaces[i]);
-                }
-            });
+            //
+            // searchNearbyPlaces(function (nearbyPlaces) {
+            //     for (var i = 0; i < nearbyPlaces.length; i++) {
+            //         createMarker(nearbyPlaces[i]);
+            //     }
+            // });
 
         });
     } else {
@@ -42,7 +44,6 @@ function initMap() {
 }
 
 function searchNearbyPlaces(callback) {
-    var service = new google.maps.places.PlacesService(map);
     service.nearbySearch({
         location: googleLocation,
         radius: 250,
@@ -54,7 +55,27 @@ function searchNearbyPlaces(callback) {
     });
 }
 
+function placeDetail(placeId, callback) {
+    if (typeof service === "undefined") {
+        setTimeout(function() {
+            placeDetail(placeId, callback);
+        }, 200);
+        return;
+    }
+    service.getDetails({
+        placeId: 'ChIJN1t_tDeuEmsRUsoyG83frY4'
+    }, function(place, status) {
+        console.log(place);
+        console.log(status);
+
+        if (status === google.maps.places.PlacesServiceStatus.OK) {
+            callback(place);
+        }
+    });
+}
+
 function createMarker(place) {
+    console.log("Creating marker for " + place.name);
     var placeLoc = place.geometry.location;
     var marker = new google.maps.Marker({
         map: map,

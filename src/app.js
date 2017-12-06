@@ -9,23 +9,7 @@ function createPlacesTable() {
     searchNearbyPlaces(function (nearbyPlaces) {
         if (nearbyPlaces.length > 0) {
             nearbyPlaces.sort(distanceComparator);
-            var tableHtml = '<table class="table">' +
-                '    <tbody>';
-            for (var i = 0; i < nearbyPlaces.length; i++) {
-                var place = nearbyPlaces[i];
-
-                tableHtml+= '<tr onclick="showAddPlaceFom(' + i + ')">';
-                if (typeof place.photos === "undefined") {
-                    tableHtml+= '<td><img src="' + place.icon + '" alt="' + place.name + '"/></td>';
-                } else {
-                    tableHtml+= '<td><img src="' + place.photos[0].getUrl({'maxWidth': 150, 'maxHeight': 150}) + '" alt="' + place.name + '"/></td>';
-                }
-                tableHtml+= '<td><div>' + place.name + '</div><div>' + place.vicinity + '</div></td>';
-                tableHtml+= '</tr>';
-                tableHtml+= createAddPlaceForm(i, place)
-            }
-            tableHtml += '</tbody>' +
-                '</table>';
+            var tableHtml = createPlaceTableHtml(nearbyPlaces);
 
             $addPlaceModalContent.html(tableHtml);
 
@@ -41,9 +25,9 @@ function createPlacesTable() {
 function submitAddPlaceForm(e) {
     var $this = $(this);
     var formData = {
-        "placeId" : $this.find("input[name='placeId']").val(),
-        "comment" : $this.find("textarea[name='comment']").val(),
-        "stars" : $this.find("input[name='star']:checked:first").val()
+        "placeId": $this.find("input[name='placeId']").val(),
+        "comment": $this.find("textarea[name='comment']").val(),
+        "stars": $this.find("input[name='star']:checked:first").val()
     };
     makeCorsRequest("POST", "/user/" + storage.getItem(LOGGED_USER_ID) + "/addPlace", formData, function(user) {
        console.log(user);
@@ -118,37 +102,122 @@ function makeCorsRequest(method, route, data, callback) {
     }
 }
 
-function showAddPlaceFom(index) {
+function showAddPlaceForm(index) {
     var $addPlaceModalContent = $("#addPlaceModalContent");
     $addPlaceModalContent.find("tr[id^='addPlaceForm']").hide();
     $addPlaceModalContent.find("#addPlaceForm" + index).show();
 }
 
+function logIntoApplication(response) {
+    makeCorsRequest("GET", "/user/" + response.id, null, function (user) {
+        if (user.length < 1) {
+            console.log("User not exists. Creating a new one ...");
+            makeCorsRequest("POST", "/user", {
+                "email": response.email,
+                "fbId": response.id,
+                "name": response.name
+            }, function (createdUser) {
+                user = createdUser;
+            });
+        }
+    });
+
+    getFbFriends(function(response) {
+        if (response.data.length > 0) {
+            var friendFbIds = [];
+            response.data.forEach(function(friend) {
+                friendFbIds.push(friend.id);
+            });
+            makeCorsRequest("POST", "/friends/visited", friendFbIds, function(result) {
+                console.log(result);
+                result.forEach(function (place) {
+                    placeDetail(place._id, function(placeDetail) {
+                       createMarker(placeDetail);
+                    });
+                })
+            });
+        }
+    });
+    setLoggedUser(response);
+}
+
+function logout() {
+    setLoggedUser(null);
+}
+
+function setLoggedUser(response) {
+    var $loggedUser = $("#loggedUser");
+    var $applicationControls = $("#applicationControls li");
+    var $fbLoginButton = $("#fbLogin");
+    if (typeof response !== "undefined" && response != null) {
+        console.log('Successful login for: ' + response.name + " " + response.email + " " + response.id);
+        $loggedUser.text(response.name + ", " + response.email);
+        $loggedUser.show();
+
+        storage.setItem(LOGGED_USER_ID, response.id);
+
+        $fbLoginButton.hide();
+        $applicationControls.show();
+    } else {
+        console.log("User was logged out.");
+        $loggedUser.hide();
+        $loggedUser.text("");
+
+        storage.setItem(LOGGED_USER_ID, "");
+        $fbLoginButton.show();
+        $applicationControls.hide();
+    }
+}
+
+function createPlaceTableHtml(nearbyPlaces) {
+    var tableHtml = '<table class="table">' +
+        '    <tbody>';
+    for (var i = 0; i < nearbyPlaces.length; i++) {
+        var place = nearbyPlaces[i];
+
+        tableHtml += '<tr onclick="showAddPlaceForm(' + i + ')">';
+        if (typeof place.photos === "undefined") {
+            tableHtml += '<td><img src="' + place.icon + '" alt="' + place.name + '"/></td>';
+        } else {
+            tableHtml += '<td><img src="' + place.photos[0].getUrl({
+                    'maxWidth': 150,
+                    'maxHeight': 150
+                }) + '" alt="' + place.name + '"/></td>';
+        }
+        tableHtml += '<td><div>' + place.name + '</div><div>' + place.vicinity + '</div></td>';
+        tableHtml += '</tr>';
+        tableHtml += createAddPlaceForm(i, place)
+    }
+    tableHtml += '</tbody>' +
+        '</table>';
+    return tableHtml;
+}
+
 function createAddPlaceForm(i, place) {
     return '<tr style="display:none" id="addPlaceForm' + i + '"><td colspan="2">' +
         '<form>' +
-            '<input type="hidden" name="placeId" value="' + place.id + '"/>' +
-                getReviewStarsHtml(i) +
-                '<div class="form-group">' +
-                    '<label>Comment</label>' +
-                    '<textarea class="form-control" name="comment" rows="2"></textarea>' +
-                '</div>' +
-            '<button class="btn btn-primary">Submit</button>' +
+        '<input type="hidden" name="placeId" value="' + place.place_id + '"/>' +
+        getReviewStarsHtml(i) +
+        '<div class="form-group">' +
+        '<label>Comment</label>' +
+        '<textarea class="form-control" name="comment" rows="2"></textarea>' +
+        '</div>' +
+        '<button class="btn btn-primary">Submit</button>' +
         '</form>' +
         '</td></tr>';
 }
 
 function getReviewStarsHtml(index) {
     return '<div class="stars form-group">' +
-    '        <input class="star star-5" id="star-' + index + '-5" type="radio" name="star" value="5"/>' +
-    '        <label class="star star-5" for="star-' + index + '-5"></label>' +
-    '        <input class="star star-4" id="star-' + index + '-4" type="radio" name="star" value="4"/>' +
-    '        <label class="star star-4" for="star-' + index + '-4"></label>' +
-    '        <input class="star star-3" id="star-' + index + '-3" type="radio" name="star" value="3"/>' +
-    '        <label class="star star-3" for="star-' + index + '-3"></label>' +
-    '        <input class="star star-2" id="star-' + index + '-2" type="radio" name="star" value="2"/>' +
-    '        <label class="star star-2" for="star-' + index + '-2"></label>' +
-    '        <input class="star star-1" id="star-' + index + '-1" type="radio" name="star"  value="1"/>' +
-    '        <label class="star star-1" for="star-' + index + '-1"></label>' +
-    '</div>';
+        '        <input class="star star-5" id="star-' + index + '-5" type="radio" name="star" value="5"/>' +
+        '        <label class="star star-5" for="star-' + index + '-5"></label>' +
+        '        <input class="star star-4" id="star-' + index + '-4" type="radio" name="star" value="4"/>' +
+        '        <label class="star star-4" for="star-' + index + '-4"></label>' +
+        '        <input class="star star-3" id="star-' + index + '-3" type="radio" name="star" value="3"/>' +
+        '        <label class="star star-3" for="star-' + index + '-3"></label>' +
+        '        <input class="star star-2" id="star-' + index + '-2" type="radio" name="star" value="2"/>' +
+        '        <label class="star star-2" for="star-' + index + '-2"></label>' +
+        '        <input class="star star-1" id="star-' + index + '-1" type="radio" name="star"  value="1"/>' +
+        '        <label class="star star-1" for="star-' + index + '-1"></label>' +
+        '</div>';
 }
