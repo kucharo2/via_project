@@ -115,7 +115,7 @@ function showAddPlaceForm(index) {
 function showVisitedPlacesByFriends() {
     getFbFriends(function (response) {
         if (response.data.length > 0) {
-            var friendFbIds = [];
+            var friendFbIds = [storage.getItem(LOGGED_USER_ID)];
             response.data.forEach(function (friend) {
                 friendFbIds.push(friend.id);
             });
@@ -238,13 +238,24 @@ function getPlacePhoto(placeDetail) {
 
 function createPlaceDetailInfoWindowContent(placeDetail, placeReview) {
     console.log(placeReview);
-    var friendsIds = Object.keys(placeReview.friends);
     var visitorsText = "";
+    var meId = storage.getItem(LOGGED_USER_ID);
+
+    var friendsIds = Object.keys(placeReview.friends);
+    if (placeReview.friends[meId]) {
+        visitorsText += "You";
+        if(Object.keys(placeReview.friends).length > 1) {
+            visitorsText += ",";
+        }
+        visitorsText += " ";
+        friendsIds.pop(meId);
+    }
+
     for (var i = 0; i < 3; ++i) {
         if (friendsIds.length > i) {
             visitorsText += placeReview.friends[friendsIds[i]].name;
-            if (i < 2) {
-                visitorsText += " ";
+            if (i > 2 && i < friendsIds.length) {
+                visitorsText += ",";
             }
             visitorsText += " ";
         }
@@ -252,7 +263,7 @@ function createPlaceDetailInfoWindowContent(placeDetail, placeReview) {
     if (friendsIds.length > 3) {
         visitorsText += "and " + friendsIds.length - 3 + " more ";
     }
-    visitorsText += "was here.";
+    visitorsText +=  "were here.";
     return '<h5>' + placeDetail.name + '</h5>' +
         '<div class="infoWindowContent">' +
         '   <div>' + getPlacePhoto(placeDetail) + '</div>' +

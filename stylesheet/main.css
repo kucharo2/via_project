@@ -14,19 +14,11 @@ img.indicator {
     height: 55px;
 }
 
-.infoWindowContent div {
-    display: inline-block;
-    padding: 5px;
-}
-
 @media (max-width: 450px) {
     #map {
         height: 600px;
     }
 
-    .infoWindowContent div {
-        display: block;
-    }
 }
 
 /* review stars */
