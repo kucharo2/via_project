@@ -4,7 +4,7 @@ var infoWindow;
 var googleLocation;
 
 function showCurrentLocation() {
-    new google.maps.Marker({
+    return new google.maps.Marker({
         position: googleLocation,
         map: map,
         icon: {
@@ -20,8 +20,8 @@ function showCurrentLocation() {
 
 function initMap() {
     if (navigator.geolocation) {
-        // navigator.geolocation.getCurrentPosition(function (position) {
-        navigator.geolocation.watchPosition(function (position) {
+        navigator.geolocation.getCurrentPosition(function (position) {
+            // navigator.geolocation.watchPosition(function (position) {
             console.log(position);
             googleLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
             map = new google.maps.Map(document.getElementById('map'), {
@@ -31,8 +31,11 @@ function initMap() {
 
             infoWindow = new google.maps.InfoWindow();
             service = new google.maps.places.PlacesService(map);
-            showCurrentLocation();
+            var actualPositionMarker = showCurrentLocation();
 
+            navigator.geolocation.watchPosition(function (position) {
+                actualPositionMarker.setPosition(new google.maps.LatLng(position.coords.latitude, position.coords.longitude));
+            });
         }, function() {
             $("#map").text("Application does not have permissions to get your location.")
         });
