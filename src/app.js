@@ -1,10 +1,12 @@
 var storage = {};
 const PUB_TRACKER_API_URL = "https://salty-woodland-34826.herokuapp.com";
 const LOGGED_USER_ID = "loggedUserId";
+const VISITED_PLACES_RESULT = "visitedPlacesResult";
 
 function createPlacesTable() {
-    $("#modalAjaxIndicator").show();
     var $addPlaceModalContent = $("#addPlaceModalContent");
+    var $ajaxIndicator = $addPlaceModalContent.parent().find(".modalAjaxIndicator");
+    $ajaxIndicator.show();
     $addPlaceModalContent.text("");
     searchNearbyPlaces(function (nearbyPlaces) {
         if (nearbyPlaces.length > 0) {
@@ -17,8 +19,7 @@ function createPlacesTable() {
         } else {
             $addPlaceModalContent.text("Cannot found any place near to you.");
         }
-        $("#modalAjaxIndicator").hide();
-
+        $ajaxIndicator.hide();
     })
 }
 
@@ -120,14 +121,17 @@ function showVisitedPlacesByFriends() {
                 friendFbIds.push(friend.id);
             });
             makeCorsRequest("POST", "/friends/visited", friendFbIds, function (result) {
+                var resultToStorage = {};
                 result.forEach(function (place) {
                     // place is one result of mapReduce, so it holds all friends that was in this place and their comments
+                    resultToStorage[place._id] = place.value;
                     placeDetail(place._id, function (placeDetail) {
                         createMarker(placeDetail, function () {
                             return createPlaceDetailInfoWindowContent(placeDetail, place.value);
                         });
                     });
-                })
+                });
+                storage.setItem(VISITED_PLACES_RESULT, JSON.stringify(resultToStorage));
             });
         }
     });
@@ -177,6 +181,47 @@ function setLoggedUser(response) {
         $fbLoginButton.show();
         $applicationControls.hide();
     }
+}
+
+function showPlaceReviewModal(placeId, placeName) {
+    var placeReview = JSON.parse(storage.getItem(VISITED_PLACES_RESULT))[placeId];
+    var $placeReviewModal = $("#placeReview").modal('show');
+    $placeReviewModal.find(".modalAjaxIndicator").show();
+    $placeReviewModal.find("#placeReviewTitle").text(placeName);
+    getFbFriends(function (friendsResult)  {
+        var friendsPhotoUrl = {};
+        friendsResult.data.forEach(function (friend) {
+           friendsPhotoUrl[friend.id] = friend.picture.data.url;
+        });
+
+        var tableHtml = '<table class="table">' +
+            '    <tbody>';
+        Object.keys(placeReview.friends).forEach(function (key) {
+            var friend = placeReview.friends[key];
+            var commentList = "";
+            var overallRating = 0;
+            friend.reviews.forEach(function(review) {
+                commentList += '<li>' + review.comment + '</li>';
+                overallRating += parseInt(review.stars);
+            });
+            tableHtml += '' +
+                '<div class="friendHeader">' +
+                '   <div><img src="' + friendsPhotoUrl[key] + '" alt="' + friend.name + '"/></div>' +
+                '   <div><span class="friendName"><strong>' + friend.name + '</strong></span></br>' + renderRating(overallRating/friend.reviews.length) + '</div>' +
+                '</div>' +
+                '<div>' +
+                '   <ul>' +
+                    commentList +
+                '   </ul>' +
+                '</div>';
+        });
+
+        tableHtml += '</tbody>' +
+            '</table>';
+        $placeReviewModal.find("#placeReviewContent").html(tableHtml);
+        $placeReviewModal.find(".modalAjaxIndicator").hide();
+    });
+
 }
 
 function createAddPlaceTableHtml(nearbyPlaces) {
@@ -237,7 +282,6 @@ function getPlacePhoto(placeDetail) {
 }
 
 function createPlaceDetailInfoWindowContent(placeDetail, placeReview) {
-    console.log(placeReview);
     var visitorsText = "";
     var meId = storage.getItem(LOGGED_USER_ID);
 
@@ -271,7 +315,8 @@ function createPlaceDetailInfoWindowContent(placeDetail, placeReview) {
                 renderRating(placeReview.rating) + '</br>' +
         '       ' + placeDetail.adr_address + '</br></br>' +
                     visitorsText + '</br></br>' +
-        '           last text' +
+        // '           <a href="#" onclick="showPlaceReviewModal(\'' + placeDetail.place_id  + '\')">See review >></a>' +
+        '           <a href="#" onclick="showPlaceReviewModal(\'' + placeDetail.place_id + '\', \'' + placeDetail.name + '\')">See review >></a>' +
         '       ' +
         '   </div>' +
         '</div>';

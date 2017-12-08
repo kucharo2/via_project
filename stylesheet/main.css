@@ -5,8 +5,29 @@
     text-align: center;
 }
 
-.modal-body {
+#addPlaceModalContent {
     text-align: center;
+}
+
+#placeReviewContent span {
+    vertical-align: top;
+}
+
+#placeReviewContent .friendHeader {
+    display: flex;
+}
+
+#placeReviewContent .friendHeader div {
+    padding-left: 10px;
+    padding-right: 10px;
+    /*font-weight: bold;*/
+}
+#placeReviewContent .friendHeader div:nth-child(1) {
+    width: 19%;
+}
+#placeReviewContent .friendHeader div:nth-child(2) {
+    width: 79%;
+    text-align: right;
 }
 
 img.indicator {

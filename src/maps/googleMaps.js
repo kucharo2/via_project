@@ -20,7 +20,9 @@ function showCurrentLocation() {
 
 function initMap() {
     if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function (position) {
+        // navigator.geolocation.getCurrentPosition(function (position) {
+        navigator.geolocation.watchPosition(function (position) {
+            console.log(position);
             googleLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
             map = new google.maps.Map(document.getElementById('map'), {
                 center: googleLocation,
@@ -30,13 +32,9 @@ function initMap() {
             infoWindow = new google.maps.InfoWindow();
             service = new google.maps.places.PlacesService(map);
             showCurrentLocation();
-            //
-            // searchNearbyPlaces(function (nearbyPlaces) {
-            //     for (var i = 0; i < nearbyPlaces.length; i++) {
-            //         createMarker(nearbyPlaces[i]);
-            //     }
-            // });
 
+        }, function() {
+            $("#map").text("Application does not have permissions to get your location.")
         });
     } else {
         $("#map").text("Your browser does not support geolocation.")
