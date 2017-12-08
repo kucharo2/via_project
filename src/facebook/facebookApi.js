@@ -46,7 +46,8 @@ function checkLoginStatus() {
     FB.getLoginStatus(function (response) {
         if (response.status === 'connected') {
             console.log('Welcome!  Fetching your information.... ');
-            FB.api('/me', {fields: 'id, name, email'}, function (userData) {
+            FB.api('/me', {fields: 'id, name, email, picture'}, function (userData) {
+                console.log(userData);
                 logIntoApplication(userData);
             });
         } else if (response.status === 'not_authorized') {
