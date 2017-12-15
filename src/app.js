@@ -1,6 +1,7 @@
 var storage = {};
 const PUB_TRACKER_API_URL = "https://salty-woodland-34826.herokuapp.com";
 const LOGGED_USER_ID = "loggedUserId";
+const LOGGED_USER_PHOTO_URL = "loggedUserPhotoUrl";
 const VISITED_PLACES_RESULT = "visitedPlacesResult";
 
 function createPlacesTable() {
@@ -165,10 +166,12 @@ function setLoggedUser(response) {
     var $fbLoginButton = $("#fbLogin");
     if (typeof response !== "undefined" && response != null) {
         console.log('Successful login for: ' + response.name + " " + response.email + " " + response.id);
-        $loggedUser.text(response.name + ", " + response.email);
+
+        $loggedUser.html("<span>" + response.name + "</span>" + " <img id='profilePicture' src='" + response.picture.data.url + "'/>");
         $loggedUser.show();
 
         storage.setItem(LOGGED_USER_ID, response.id);
+        storage.setItem(LOGGED_USER_PHOTO_URL, response.picture.data.url);
 
         $fbLoginButton.hide();
         $applicationControls.show();
@@ -190,30 +193,26 @@ function showPlaceReviewModal(placeId, placeName) {
     $placeReviewModal.find("#placeReviewTitle").text(placeName);
     getFbFriends(function (friendsResult)  {
         var friendsPhotoUrl = {};
+        var myId = storage.getItem(LOGGED_USER_ID);
+
         friendsResult.data.forEach(function (friend) {
+            if (friend.id === myId) {
+                friendsPhotoUrl[friend.id] = storage.getItem(LOGGED_USER_PHOTO_URL);
+            }
            friendsPhotoUrl[friend.id] = friend.picture.data.url;
         });
-
         var tableHtml = '<table class="table">' +
             '    <tbody>';
-        Object.keys(placeReview.friends).forEach(function (key) {
+        var friendsIds = Object.keys(placeReview.friends);
+        var myReview = placeReview.friends[myId];
+        if (typeof myReview !== "undefined") {
+            tableHtml += renderUserComment(myReview, tableHtml, friendsPhotoUrl, myId);
+            friendsIds.splice(friendsIds.indexOf(myId), 1);
+        }
+
+        friendsIds.forEach(function (key) {
             var friend = placeReview.friends[key];
-            var commentList = "";
-            var overallRating = 0;
-            friend.reviews.forEach(function(review) {
-                commentList += '<li>' + review.comment + '</li>';
-                overallRating += parseInt(review.stars);
-            });
-            tableHtml += '' +
-                '<div class="friendHeader">' +
-                '   <div><img src="' + friendsPhotoUrl[key] + '" alt="' + friend.name + '"/></div>' +
-                '   <div><span class="friendName"><strong>' + friend.name + '</strong></span></br>' + renderRating(overallRating/friend.reviews.length) + '</div>' +
-                '</div>' +
-                '<div>' +
-                '   <ul>' +
-                    commentList +
-                '   </ul>' +
-                '</div>';
+            tableHtml += renderUserComment(friend, tableHtml, friendsPhotoUrl, key);
         });
 
         tableHtml += '</tbody>' +
@@ -283,16 +282,16 @@ function getPlacePhoto(placeDetail) {
 
 function createPlaceDetailInfoWindowContent(placeDetail, placeReview) {
     var visitorsText = "";
-    var meId = storage.getItem(LOGGED_USER_ID);
+    var myId = storage.getItem(LOGGED_USER_ID);
 
     var friendsIds = Object.keys(placeReview.friends);
-    if (placeReview.friends[meId]) {
+    if (placeReview.friends[myId]) {
         visitorsText += "You";
         if(Object.keys(placeReview.friends).length > 1) {
             visitorsText += ",";
         }
         visitorsText += " ";
-        friendsIds.pop(meId);
+        friendsIds.splice(friendsIds.indexOf(myId), 1);
     }
 
     for (var i = 0; i < 3; ++i) {
@@ -336,4 +335,24 @@ function renderRating(rating) {
         }
     }
     return html;
+}
+
+function renderUserComment(friend, tableHtml, friendsPhotoUrl, key) {
+    var commentList = "";
+    var overallRating = 0;
+    friend.reviews.forEach(function (review) {
+        commentList += '<li>' + review.comment + '</li>';
+        overallRating += parseInt(review.stars);
+    });
+    tableHtml += '' +
+        '<div class="friendHeader">' +
+        '   <div><img src="' + friendsPhotoUrl[key] + '" alt="' + friend.name + '"/></div>' +
+        '   <div><span class="friendName"><strong>' + friend.name + '</strong></span></br>' + renderRating(overallRating / friend.reviews.length) + '</div>' +
+        '</div>' +
+        '<div>' +
+        '   <ul>' +
+        commentList +
+        '   </ul>' +
+        '</div>';
+    return tableHtml;
 }

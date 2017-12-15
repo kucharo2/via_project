@@ -15,7 +15,15 @@ var mockFacebookAPI = function () {
             response = {
                 "email": "kucharrom@gmail.com",
                 "id": "10215232831076561",
-                "name": "Roman Kuchy Kuchar"
+                "name": "Roman Kuchy Kuchar",
+                "picture": {
+                    "data": {
+                        "height": 50,
+                        "is_silhouette": false,
+                        "url": "https://scontent.xx.fbcdn.net/v/t1.0-1/p50x50/1916850_10209133985529234_6611487263668163491_n.jpg?oh=4210146f62b14ed4fd291c62fd175c41&oe=5A89CFC2",
+                        "width": 50
+                    }
+                }
             };
         } else if (route === "/me/friends") {
             response = {

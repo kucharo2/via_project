@@ -35,6 +35,17 @@ img.indicator {
     height: 55px;
 }
 
+img#profilePicture {
+    float: right;
+    margin-left: 10px;
+}
+
+#loggedUser span {
+    position: relative;
+    top: 12px;
+
+}
+
 @media (max-width: 450px) {
     #map {
         height: 600px;
