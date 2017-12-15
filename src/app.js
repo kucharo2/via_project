@@ -196,27 +196,22 @@ function showPlaceReviewModal(placeId, placeName) {
         var myId = storage.getItem(LOGGED_USER_ID);
 
         friendsResult.data.forEach(function (friend) {
-            if (friend.id === myId) {
-                friendsPhotoUrl[friend.id] = storage.getItem(LOGGED_USER_PHOTO_URL);
-            }
            friendsPhotoUrl[friend.id] = friend.picture.data.url;
         });
-        var tableHtml = '<table class="table">' +
-            '    <tbody>';
+
+        var tableHtml = "";
         var friendsIds = Object.keys(placeReview.friends);
         var myReview = placeReview.friends[myId];
         if (typeof myReview !== "undefined") {
-            tableHtml += renderUserComment(myReview, tableHtml, friendsPhotoUrl, myId);
+            tableHtml += renderUserComment(myReview, storage.getItem(LOGGED_USER_PHOTO_URL));
             friendsIds.splice(friendsIds.indexOf(myId), 1);
         }
 
         friendsIds.forEach(function (key) {
             var friend = placeReview.friends[key];
-            tableHtml += renderUserComment(friend, tableHtml, friendsPhotoUrl, key);
+            tableHtml += renderUserComment(friend, friendsPhotoUrl[key]);
         });
 
-        tableHtml += '</tbody>' +
-            '</table>';
         $placeReviewModal.find("#placeReviewContent").html(tableHtml);
         $placeReviewModal.find(".modalAjaxIndicator").hide();
     });
@@ -337,16 +332,16 @@ function renderRating(rating) {
     return html;
 }
 
-function renderUserComment(friend, tableHtml, friendsPhotoUrl, key) {
+function renderUserComment(friend, photoUrl) {
     var commentList = "";
     var overallRating = 0;
     friend.reviews.forEach(function (review) {
         commentList += '<li>' + review.comment + '</li>';
         overallRating += parseInt(review.stars);
     });
-    tableHtml += '' +
+    var tableHtml = '' +
         '<div class="friendHeader">' +
-        '   <div><img src="' + friendsPhotoUrl[key] + '" alt="' + friend.name + '"/></div>' +
+        '   <div><img src="' + photoUrl + '" alt="' + friend.name + '"/></div>' +
         '   <div><span class="friendName"><strong>' + friend.name + '</strong></span></br>' + renderRating(overallRating / friend.reviews.length) + '</div>' +
         '</div>' +
         '<div>' +
