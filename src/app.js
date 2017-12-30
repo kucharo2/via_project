@@ -163,7 +163,8 @@ function logout() {
 function setLoggedUser(response) {
     var $loggedUser = $("#loggedUser");
     var $applicationControls = $("#applicationControls li");
-    var $fbLoginButton = $("#fbLogin");
+    var $fbLoginButton = $(".fbLogin");
+    var $mapDiv = $("#map");
     if (typeof response !== "undefined" && response != null) {
         console.log('Successful login for: ' + response.name + " " + response.email + " " + response.id);
 
@@ -174,6 +175,8 @@ function setLoggedUser(response) {
         storage.setItem(LOGGED_USER_PHOTO_URL, response.picture.data.url);
 
         $fbLoginButton.hide();
+        $mapDiv.show();
+        initMap();
         $applicationControls.show();
     } else {
         console.log("User was logged out.");
@@ -182,21 +185,26 @@ function setLoggedUser(response) {
 
         storage.setItem(LOGGED_USER_ID, "");
         $fbLoginButton.show();
+        $mapDiv.hide();
         $applicationControls.hide();
     }
 }
 
-function showPlaceReviewModal(placeId, placeName) {
+function showPlaceReviewModal(placeId, placeName, website) {
     var placeReview = JSON.parse(storage.getItem(VISITED_PLACES_RESULT))[placeId];
     var $placeReviewModal = $("#placeReview").modal('show');
     $placeReviewModal.find(".modalAjaxIndicator").show();
-    $placeReviewModal.find("#placeReviewTitle").text(placeName);
-    getFbFriends(function (friendsResult)  {
+    if (website != "undefined") {
+        $placeReviewModal.find("#placeReviewTitle").html("<span> " + placeName + " <a href='" + website + "' target='_blank'>(website)</a></span>");
+    } else {
+        $placeReviewModal.find("#placeReviewTitle").text(placeName);
+    }
+    getFbFriends(function (friendsResult) {
         var friendsPhotoUrl = {};
         var myId = storage.getItem(LOGGED_USER_ID);
 
         friendsResult.data.forEach(function (friend) {
-           friendsPhotoUrl[friend.id] = friend.picture.data.url;
+            friendsPhotoUrl[friend.id] = friend.picture.data.url;
         });
 
         var tableHtml = "";
@@ -302,7 +310,13 @@ function createPlaceDetailInfoWindowContent(placeDetail, placeReview) {
         visitorsText += "and " + friendsIds.length - 3 + " more ";
     }
     visitorsText +=  "were here.";
-    return '<h5>' + placeDetail.name + '</h5>' +
+    var nameWithLink = "";
+    if (typeof placeDetail.website == "undefined") {
+        nameWithLink = placeDetail.name;
+    } else {
+        nameWithLink = '<a href="' + placeDetail.website + '" target="_blank">' + placeDetail.name + '</a>';
+    }
+    return '<h5>' + nameWithLink + '</h5>' +
         '<div class="infoWindowContent">' +
         '   <div>' + getPlacePhoto(placeDetail) + '</div>' +
         '   <div>' +
@@ -310,7 +324,7 @@ function createPlaceDetailInfoWindowContent(placeDetail, placeReview) {
         '       ' + placeDetail.adr_address + '</br></br>' +
                     visitorsText + '</br></br>' +
         // '           <a href="#" onclick="showPlaceReviewModal(\'' + placeDetail.place_id  + '\')">See review >></a>' +
-        '           <a href="#" onclick="showPlaceReviewModal(\'' + placeDetail.place_id + '\', \'' + placeDetail.name + '\')">See review >></a>' +
+        '           <a href="#" onclick="showPlaceReviewModal(\'' + placeDetail.place_id + '\', \'' + placeDetail.name + '\', \'' + placeDetail.website + '\')">See review >></a>' +
         '       ' +
         '   </div>' +
         '</div>';

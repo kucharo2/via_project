@@ -29,7 +29,7 @@
 					<a href="#" class="nav-link" onclick="logout()">Logout</a>
 				</li>
 			</ul>
-			<button id="fbLogin" class="btn btn-outline-primary" onclick="fbLogin();">Log into Facebook</button>
+			<button id="fbLogin" class="btn btn-outline-primary fbLogin" onclick="fbLogin();">Log into Facebook</button>
 			<div id="loggedUser" class="text-light"></div>
 		</div>
 	</nav>
@@ -37,6 +37,10 @@
 	<main role="main" class="container">
 
 		<div class="starter-template">
+			<div id="welcomePage" class="fbLogin">
+				Welcome to PubTracker. Please log in.<br/><br/>
+				<button class="btn btn-outline-primary" onclick="fbLogin();">Log into Facebook</button>
+			</div>
 			<div id="map">
 				<img src="ajax-loader.gif" class="indicator" /></br>
 				Loading map...
@@ -72,7 +76,7 @@
 		<div class="modal-dialog" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h5 class="modal-title" id="placeReviewTitle">Where are you?</h5>
+					<h5 class="modal-title" id="placeReviewTitle"></h5>
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
 					</button>
@@ -98,7 +102,7 @@
 	<script src="src/facebook/facebookApiMock.js" type="text/javascript"></script>
 	<script src="src/maps/googleMaps.js" type="text/javascript"></script>
 	<!-- Google map(places) api -->
-	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD10rgOEQhCGE26z1MxQ5A6IQKuH51JOnY&libraries=places&callback=initMap" async defer></script>
+	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD10rgOEQhCGE26z1MxQ5A6IQKuH51JOnY&libraries=places" async defer></script>
 	<!-- Bootstrap javascript -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
