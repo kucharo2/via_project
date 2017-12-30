@@ -32,9 +32,9 @@ Returns info about the user by it's facebookId
 Create a user from post data. Post data must be in this format and all of shown fields are required.
 ```json
 {
-    fbId: "testId",
-    name: "testName",
-    email: "test@email.com"
+    "fbId": "testId",
+    "name": "testName",
+    "email": "test@email.com"
 }
 ```
 
@@ -45,9 +45,9 @@ Create a user from post data. Post data must be in this format and all of shown 
 Add a visited place to specific user defined by it's facebookId. Post data must be in this format and all of shown field are required.
 ```json
 {
-    placeId: "placeId from google API", 
-    comment: "test comment", 
-    stars: "3"
+    "placeId": "placeId from google API", 
+    "comment": "test comment", 
+    "stars": "3"
 }
 ```
 
@@ -61,5 +61,5 @@ This endpoint execute a mapReduce function to map a visited restaurants by faceb
 ```
 
 ### gh-pages
-This branch contains a client part of this application. It is implemented with jQuery javascript framework
+1This branch contains a client part of this application. It is implemented with jQuery javascript framework
 
