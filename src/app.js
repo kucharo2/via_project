@@ -37,6 +37,7 @@ function submitAddPlaceForm(e) {
     };
     makeCorsRequest("POST", "/user/" + storage.getItem(LOGGED_USER_ID) + "/addPlace", formData, function (user) {
         console.log(user);
+        showVisitedPlacesByFriends();
     });
     $('#addPlaceModal').modal('hide');
     e.preventDefault();
